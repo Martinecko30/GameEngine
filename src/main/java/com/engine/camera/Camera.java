@@ -9,7 +9,7 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class Camera {
 
-    private Vector3f position = new Vector3f(0, 0, 0);
+    private Vector3f position = new Vector3f(0, 10, 0);
     private float pitch, yaw, roll;
 
     private float multiplier = 2;
@@ -20,7 +20,7 @@ public class Camera {
 
     public void move() {
         if(KeyListener.isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
-            multiplier = 5;
+            multiplier = 10;
         } else {
             multiplier = 2;
         }

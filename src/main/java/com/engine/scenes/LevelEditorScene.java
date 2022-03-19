@@ -2,6 +2,9 @@ package com.engine.scenes;
 
 import com.engine.camera.Camera;
 import com.engine.entities.GameObject;
+import com.engine.entities.Transform;
+import com.engine.objects.ModelData;
+import com.engine.objects.OBJFileLoader;
 import com.engine.renderengine.enviroment.Light;
 import com.engine.main.Window;
 import com.engine.renderengine.models.RawModel;
@@ -14,17 +17,14 @@ import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class LevelEditorScene extends Scene {
 
     Camera camera = new Camera();
-
-    RawModel model;
-    ModelTexture texture;
-    TexturedModel texturedModel;
     Light light;
-    Terrain terrain, terrain2;
 
+    List<Terrain> terrains = new ArrayList<>();
     List<GameObject> gameObjects = new ArrayList<>();
 
     public LevelEditorScene() {
@@ -33,50 +33,80 @@ public class LevelEditorScene extends Scene {
 
     @Override
     public void init() {
-        model = OBJLoader.loadObjModel("dragon", Window.get().loader);
-        texture = new ModelTexture(Window.get().loader.loadTexture("white"));
-        texture.setShineDamper(10);
-        texture.setReflectivity(1);
-        texturedModel = new TexturedModel(model, texture);
-        GameObject dragon = new GameObject("dragon", texturedModel, new Vector3f(0,-4,-20),0,0,0,1);
+        ModelData dragonData = OBJFileLoader.loadOBJ("dragon");
+        GameObject dragon = new GameObject("dragon",
+                new TexturedModel(
+                        Window.getLoader().loadToVAO(dragonData.getVertices(), dragonData.getTextureCoords(), dragonData.getNormals(), dragonData.getIndices()),
+                        new ModelTexture(Window.getLoader().loadTexture("white"))),
+                new Transform(0, 0, -20, 0, 0, 0),1);
+        dragon.getModelTexture().setShineDamper(10);
+        dragon.getModelTexture().setReflectivity(1);
         gameObjects.add(dragon);
+
+        ModelData fernData = OBJFileLoader.loadOBJ("fern");
         GameObject fern = new GameObject(
                 "fern",
                 new TexturedModel(
-                OBJLoader.loadObjModel("fern", Window.getLoader()),
+                        Window.getLoader().loadToVAO(fernData.getVertices(), fernData.getTextureCoords(), fernData.getNormals(), fernData.getIndices()),
                         new ModelTexture(Window.getLoader().loadTexture("fern"))),
-                new Vector3f(20,0,0),0,0,0,0.8f);
+                new Transform(20, 0, 20, 0, 0, 0),0.8f);
         fern.getModelTexture().setTransparency(true);
         gameObjects.add(fern);
 
+        ModelData grassData = OBJFileLoader.loadOBJ("grassModel");
         GameObject grass = new GameObject(
                 "grass",
                 new TexturedModel(
-                        OBJLoader.loadObjModel("grassModel", Window.getLoader()),
+                        Window.getLoader().loadToVAO(grassData.getVertices(), grassData.getTextureCoords(), grassData.getNormals(), grassData.getIndices()),
                         new ModelTexture(Window.getLoader().loadTexture("grass"))),
-                new Vector3f(16,0,12),0,0,0,1f);
+                new Transform(16, 0, 12, 0, 0, 0),1f);
         grass.getModelTexture().setTransparency(true);
+        grass.getModelTexture().setUseFakeLighting(true);
         gameObjects.add(grass);
 
+        Random random = new Random();
+
+        for(int i =0; i<=60; i++) {
+            ModelData treeData = OBJFileLoader.loadOBJ("tree");
+            GameObject tree = new GameObject(
+                    "tree"+i,
+                    new TexturedModel(
+                            Window.getLoader().loadToVAO(treeData.getVertices(), treeData.getTextureCoords(), treeData.getNormals(), treeData.getIndices()),
+                            new ModelTexture(Window.getLoader().loadTexture("tree"))
+                    ),
+                    new Transform(random.nextFloat(300)-150,0,random.nextFloat(300)-150, 0, 0, 0), 6
+            );
+            gameObjects.add(tree);
+        }
+
+        ModelData stallData = OBJFileLoader.loadOBJ("stall");
         GameObject stall = new GameObject(
                 "grass",
                 new TexturedModel(
-                        OBJLoader.loadObjModel("stall", Window.getLoader()),
+                        Window.getLoader().loadToVAO(stallData.getVertices(), stallData.getTextureCoords(), stallData.getNormals(), stallData.getIndices()),
                         new ModelTexture(Window.getLoader().loadTexture("stallTexture"))),
-                new Vector3f(3,0,6),0,180,0,1f);
+                new Transform(3, 0, 6, 0, 180, 0),1f);
         gameObjects.add(stall);
 
-        light = new Light(new Vector3f(0, 0, 20), new Vector3f(1f, 1, 1f));
-        terrain = new Terrain(0, 0, Window.getLoader(), new ModelTexture(Window.getLoader().loadTexture("grass_floor"))); //TODO: TEST MISSING TEXTURE
-        terrain2 = new Terrain(1, 0, Window.getLoader(), new ModelTexture(Window.getLoader().loadTexture("grass_floor"))); //TODO: TEST MISSING TEXTURE
+        light = new Light(new Vector3f(0, 50, 20), new Vector3f(1f, 1, 1f));
+
+        Terrain terrain1 = new Terrain(-1, -1, Window.getLoader(), new ModelTexture(Window.getLoader().loadTexture("grass_floor")));
+        Terrain terrain2 = new Terrain(-1, 0, Window.getLoader(), new ModelTexture(Window.getLoader().loadTexture("grass_floor")));
+        Terrain terrain3 = new Terrain(0, -1, Window.getLoader(), new ModelTexture(Window.getLoader().loadTexture("grass_floor")));
+        Terrain terrain4 = new Terrain(0, 0, Window.getLoader(), new ModelTexture(Window.getLoader().loadTexture("grass_floor")));
+        terrains.add(terrain1);
+        terrains.add(terrain2);
+        terrains.add(terrain3);
+        terrains.add(terrain4);
     }
 
     @Override
     public void update(float dt) {
         camera.move();
 
-        Window.getRenderer().processTerrain(terrain);
-        Window.getRenderer().processTerrain(terrain2);
+        for(Terrain terrain : terrains) {
+            Window.getRenderer().processTerrain(terrain);
+        }
 
         for(GameObject gameObject : gameObjects) {
             if(gameObject.getName().equals("dragon")) {
@@ -88,7 +118,7 @@ public class LevelEditorScene extends Scene {
 
         if(Window.debug) {
             System.out.println((1.0f / dt) + " fps");
-            //System.out.println(camera.getPosition());
+            System.out.println(camera.getPosition().x + " " +camera.getPosition().y + " " + camera.getPosition().z);
         }
     }
 }

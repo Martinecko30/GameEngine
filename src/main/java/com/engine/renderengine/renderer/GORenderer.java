@@ -49,6 +49,7 @@ public class GORenderer {
         if(texture.isTransparent()) {
             MasterRenderer.disableCulling();
         }
+        shader.loadFakeLightingVariable(texture.isUseFakeLighting());
         shader.loadShineVariables(texture.getShineDamper(), texture.getReflectivity());
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, model.getModelTexture().getID());

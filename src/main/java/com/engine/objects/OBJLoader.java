@@ -12,6 +12,7 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 public class OBJLoader {
 
     public static RawModel loadObjModel(String fileName, Loader loader) {

@@ -8,32 +8,26 @@ public class GameObject {
 
     private String name;
     private TexturedModel model;
-    private Vector3f position;
-    private float rotX;
-    private float rotY;
-    private float rotZ;
+    private Transform transform;
     private float scale;
 
-    public GameObject(String name, TexturedModel model, Vector3f position, float rotX, float rotY, float rotZ, float scale) {
+    public GameObject(String name, TexturedModel model, Transform transform, float scale) {
         this.name = name;
         this.model = model;
-        this.position = position;
-        this.rotX = rotX;
-        this.rotY = rotY;
-        this.rotZ = rotZ;
+        this.transform = transform;
         this.scale = scale;
     }
 
     public void increasePosition(float dx, float dy, float dz) {
-        this.position.x +=dx;
-        this.position.y +=dy;
-        this.position.z +=dz;
+        this.transform.position.x +=dx;
+        this.transform.position.y +=dy;
+        this.transform.position.z +=dz;
     }
 
     public void increaseRotation(float dx, float dy, float dz) {
-        this.rotX +=dx;
-        this.rotY +=dy;
-        this.rotZ +=dz;
+        this.transform.rotX +=dx;
+        this.transform.rotY +=dy;
+        this.transform.rotZ +=dz;
     }
 
     public String getName() {
@@ -57,35 +51,35 @@ public class GameObject {
     }
 
     public Vector3f getPosition() {
-        return position;
+        return transform.position;
     }
 
     public void setPosition(Vector3f position) {
-        this.position = position;
+        this.transform.position = position;
     }
 
     public float getRotX() {
-        return rotX;
+        return transform.rotX;
     }
 
     public void setRotX(float rotX) {
-        this.rotX = rotX;
+        this.transform.rotX = rotX;
     }
 
     public float getRotY() {
-        return rotY;
+        return transform.rotY;
     }
 
     public void setRotY(float rotY) {
-        this.rotY = rotY;
+        this.transform.rotY = rotY;
     }
 
     public float getRotZ() {
-        return rotZ;
+        return transform.rotZ;
     }
 
     public void setRotZ(float rotZ) {
-        this.rotZ = rotZ;
+        this.transform.rotZ = rotZ;
     }
 
     public float getScale() {

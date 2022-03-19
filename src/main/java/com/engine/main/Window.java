@@ -32,7 +32,7 @@ public class Window {
 
     private static Scene currentScene;
 
-    public static boolean debug = false; //TODO: DEBUG
+    public static boolean debug = true; //TODO: DEBUG
 
     private Window() {
         this.WIDTH = 1920;

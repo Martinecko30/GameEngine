@@ -1,5 +1,7 @@
 package com.engine.renderengine.models;
 
+import com.engine.objects.ModelData;
+
 public class RawModel {
 
     private int vaoID;
