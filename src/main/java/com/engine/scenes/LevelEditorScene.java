@@ -3,6 +3,7 @@ package com.engine.scenes;
 import com.engine.camera.Camera;
 import com.engine.entities.GameObject;
 import com.engine.entities.Transform;
+import com.engine.game.player.Player;
 import com.engine.objects.ModelData;
 import com.engine.objects.OBJFileLoader;
 import com.engine.renderengine.enviroment.Light;
@@ -10,6 +11,8 @@ import com.engine.main.Window;
 import com.engine.renderengine.models.RawModel;
 import com.engine.renderengine.models.TexturedModel;
 import com.engine.objects.OBJLoader;
+import com.engine.renderengine.textures.TerrainTexture;
+import com.engine.renderengine.textures.TerrainTexturePack;
 import com.engine.scenemanagment.Scene;
 import com.engine.renderengine.textures.ModelTexture;
 import com.engine.terrains.Terrain;
@@ -21,11 +24,25 @@ import java.util.Random;
 
 public class LevelEditorScene extends Scene {
 
-    Camera camera = new Camera();
-    Light light;
+    private Camera camera;
+    private Light light;
 
-    List<Terrain> terrains = new ArrayList<>();
-    List<GameObject> gameObjects = new ArrayList<>();
+    private List<Terrain> terrains = new ArrayList<>();
+    private List<GameObject> gameObjects = new ArrayList<>();
+
+    // Terrain stuff
+
+    private TerrainTexture backgroundTexture = new TerrainTexture(Window.getLoader().loadTexture("grassy"));
+    private TerrainTexture rTexture = new TerrainTexture(Window.getLoader().loadTexture("dirt"));
+    private TerrainTexture gTexture = new TerrainTexture(Window.getLoader().loadTexture("pinkFlowers"));
+    private TerrainTexture bTexture = new TerrainTexture(Window.getLoader().loadTexture("path"));
+
+    private TerrainTexturePack texturePack = new TerrainTexturePack(backgroundTexture, rTexture, gTexture, bTexture);
+    private TerrainTexture blendMap = new TerrainTexture(Window.getLoader().loadTexture("blendMap"));
+
+    //*********************
+
+    Player player;
 
     public LevelEditorScene() {
 
@@ -33,6 +50,7 @@ public class LevelEditorScene extends Scene {
 
     @Override
     public void init() {
+        /*
         ModelData dragonData = OBJFileLoader.loadOBJ("dragon");
         GameObject dragon = new GameObject("dragon",
                 new TexturedModel(
@@ -42,6 +60,8 @@ public class LevelEditorScene extends Scene {
         dragon.getModelTexture().setShineDamper(10);
         dragon.getModelTexture().setReflectivity(1);
         gameObjects.add(dragon);
+
+         */
 
         ModelData fernData = OBJFileLoader.loadOBJ("fern");
         GameObject fern = new GameObject(
@@ -88,12 +108,22 @@ public class LevelEditorScene extends Scene {
                 new Transform(3, 0, 6, 0, 180, 0),1f);
         gameObjects.add(stall);
 
+        ModelData playerData = OBJFileLoader.loadOBJ("bunny");
+        player = new Player(
+                "player",
+                new TexturedModel(
+                        Window.getLoader().loadToVAO(playerData.getVertices(), playerData.getTextureCoords(), playerData.getNormals(), playerData.getIndices()),
+                        new ModelTexture(Window.getLoader().loadTexture("white"))),
+                new Transform(0, 0, 0, 0, 0, 0),0.3f);
+
+        camera = new Camera(player);
+
         light = new Light(new Vector3f(0, 50, 20), new Vector3f(1f, 1, 1f));
 
-        Terrain terrain1 = new Terrain(-1, -1, Window.getLoader(), new ModelTexture(Window.getLoader().loadTexture("grass_floor")));
-        Terrain terrain2 = new Terrain(-1, 0, Window.getLoader(), new ModelTexture(Window.getLoader().loadTexture("grass_floor")));
-        Terrain terrain3 = new Terrain(0, -1, Window.getLoader(), new ModelTexture(Window.getLoader().loadTexture("grass_floor")));
-        Terrain terrain4 = new Terrain(0, 0, Window.getLoader(), new ModelTexture(Window.getLoader().loadTexture("grass_floor")));
+        Terrain terrain1 = new Terrain(-1, -1, Window.getLoader(), texturePack, blendMap);
+        Terrain terrain2 = new Terrain(-1, 0, Window.getLoader(), texturePack, blendMap);
+        Terrain terrain3 = new Terrain(0, -1, Window.getLoader(), texturePack, blendMap);
+        Terrain terrain4 = new Terrain(0, 0, Window.getLoader(), texturePack, blendMap);
         terrains.add(terrain1);
         terrains.add(terrain2);
         terrains.add(terrain3);
@@ -103,6 +133,9 @@ public class LevelEditorScene extends Scene {
     @Override
     public void update(float dt) {
         camera.move();
+        player.move(dt);
+
+        Window.getRenderer().processGameObject(player);
 
         for(Terrain terrain : terrains) {
             Window.getRenderer().processTerrain(terrain);

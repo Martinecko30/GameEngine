@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.lwjgl.opengl.GL15.*;
+import static org.lwjgl.opengl.GL30.glGenerateMipmap;
 
 public class Loader {
 
@@ -35,6 +36,9 @@ public class Loader {
         Texture texture = null;
         try {
             texture = new Texture("res/"+fileName+".png");
+            glGenerateMipmap(GL_TEXTURE_2D);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, -0.4f);
         } catch (Exception e) {
             texture = new Texture("res/missing_texture.png");
             System.out.println("There was a error loading texture: "+fileName+".png");
