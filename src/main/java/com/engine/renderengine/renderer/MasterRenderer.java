@@ -78,7 +78,7 @@ public class MasterRenderer {
     }
 
     public void processGameObject(GameObject gameObject) {
-        TexturedModel gameObjectModel = gameObject.getModel();
+        TexturedModel gameObjectModel = gameObject.model;
         List<GameObject> batch = gameObjects.get(gameObjectModel);
         if(batch!=null) {
             batch.add(gameObject);

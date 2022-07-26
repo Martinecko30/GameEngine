@@ -2,20 +2,20 @@ package com.engine.scenes;
 
 import com.engine.camera.Camera;
 import com.engine.entities.GameObject;
-import com.engine.entities.Transform;
+import com.engine.game.components.Transform;
 import com.engine.game.player.Player;
 import com.engine.objects.ModelData;
 import com.engine.objects.OBJFileLoader;
 import com.engine.renderengine.enviroment.Light;
 import com.engine.main.Window;
-import com.engine.renderengine.models.RawModel;
 import com.engine.renderengine.models.TexturedModel;
-import com.engine.objects.OBJLoader;
 import com.engine.renderengine.textures.TerrainTexture;
 import com.engine.renderengine.textures.TerrainTexturePack;
 import com.engine.scenemanagment.Scene;
 import com.engine.renderengine.textures.ModelTexture;
+import com.engine.scenemanagment.SceneManager;
 import com.engine.terrains.Terrain;
+import com.engine.util.Time;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -69,8 +69,8 @@ public class LevelEditorScene extends Scene {
                 new TexturedModel(
                         Window.getLoader().loadToVAO(fernData.getVertices(), fernData.getTextureCoords(), fernData.getNormals(), fernData.getIndices()),
                         new ModelTexture(Window.getLoader().loadTexture("fern"))),
-                new Transform(20, 0, 20, 0, 0, 0),0.8f);
-        fern.getModelTexture().setTransparency(true);
+                new Transform(new Vector3f(20, 0, 20), new Vector3f(0, 0, 0), new Vector3f(0.8f,0.8f, 0.8f)));
+        fern.model.getModelTexture().setTransparency(true);
         gameObjects.add(fern);
 
         ModelData grassData = OBJFileLoader.loadOBJ("grassModel");
@@ -79,9 +79,9 @@ public class LevelEditorScene extends Scene {
                 new TexturedModel(
                         Window.getLoader().loadToVAO(grassData.getVertices(), grassData.getTextureCoords(), grassData.getNormals(), grassData.getIndices()),
                         new ModelTexture(Window.getLoader().loadTexture("grass"))),
-                new Transform(16, 0, 12, 0, 0, 0),1f);
-        grass.getModelTexture().setTransparency(true);
-        grass.getModelTexture().setUseFakeLighting(true);
+                new Transform(16, 0, 12, 0, 0, 0,1f, 1f, 1f));
+        grass.model.getModelTexture().setTransparency(true);
+        grass.model.getModelTexture().setUseFakeLighting(true);
         gameObjects.add(grass);
 
         Random random = new Random();
@@ -94,7 +94,7 @@ public class LevelEditorScene extends Scene {
                             Window.getLoader().loadToVAO(treeData.getVertices(), treeData.getTextureCoords(), treeData.getNormals(), treeData.getIndices()),
                             new ModelTexture(Window.getLoader().loadTexture("tree"))
                     ),
-                    new Transform(random.nextFloat(300)-150,0,random.nextFloat(300)-150, 0, 0, 0), 6
+                    new Transform(random.nextFloat(300)-150,0,random.nextFloat(300)-150, 0, 0, 0, 6, 6, 6)
             );
             gameObjects.add(tree);
         }
@@ -105,7 +105,7 @@ public class LevelEditorScene extends Scene {
                 new TexturedModel(
                         Window.getLoader().loadToVAO(stallData.getVertices(), stallData.getTextureCoords(), stallData.getNormals(), stallData.getIndices()),
                         new ModelTexture(Window.getLoader().loadTexture("stallTexture"))),
-                new Transform(3, 0, 6, 0, 180, 0),1f);
+                new Transform(3, 0, 6, 0, 180, 0, 1, 1, 1));
         gameObjects.add(stall);
 
         ModelData playerData = OBJFileLoader.loadOBJ("bunny");
@@ -114,7 +114,7 @@ public class LevelEditorScene extends Scene {
                 new TexturedModel(
                         Window.getLoader().loadToVAO(playerData.getVertices(), playerData.getTextureCoords(), playerData.getNormals(), playerData.getIndices()),
                         new ModelTexture(Window.getLoader().loadTexture("white"))),
-                new Transform(0, 0, 0, 0, 0, 0),0.3f);
+                new Transform(0, 0, 0, 0, 0, 0,0.3f, 0.3f, 0.3f));
 
         camera = new Camera(player);
 
@@ -131,9 +131,9 @@ public class LevelEditorScene extends Scene {
     }
 
     @Override
-    public void update(float dt) {
+    public void update() {
         camera.move();
-        player.move(dt);
+        player.move(Time.deltaTime);
 
         Window.getRenderer().processGameObject(player);
 
@@ -142,16 +142,16 @@ public class LevelEditorScene extends Scene {
         }
 
         for(GameObject gameObject : gameObjects) {
-            if(gameObject.getName().equals("dragon")) {
-                gameObject.increaseRotation(0, 0.2f, 0);
+            if(gameObject.name.equals("dragon")) {
+                gameObject.transform.increaseRotation(0, 0.2f, 0);
             }
             Window.getRenderer().processGameObject(gameObject);
         }
         Window.getRenderer().render(light, camera);
 
         if(Window.debug) {
-            System.out.println((1.0f / dt) + " fps");
-            System.out.println(camera.getPosition().x + " " +camera.getPosition().y + " " + camera.getPosition().z);
+            System.out.println((1.0f / Time.deltaTime) + " fps");
+            System.out.println(camera.getPosition().x + " " + camera.getPosition().y + " " + camera.getPosition().z);
         }
     }
 }

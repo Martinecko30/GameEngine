@@ -1,7 +1,7 @@
 package com.engine.renderengine.renderer;
 
 import com.engine.entities.GameObject;
-import com.engine.main.Window;
+import com.engine.game.components.Transform;
 import com.engine.renderengine.models.RawModel;
 import com.engine.renderengine.models.TexturedModel;
 import com.engine.renderengine.shaders.StaticShader;
@@ -64,20 +64,23 @@ public class GORenderer {
     }
 
     public void prepareInstance(GameObject gameObject) {
-        Matrix4f transformationMatrix = Maths.createTransformationMatrix(gameObject.getPosition(), gameObject.getRotX(), gameObject.getRotY(), gameObject.getRotZ(), gameObject.getScale());
+        Matrix4f transformationMatrix = createTransformationMatrix(gameObject.transform);
         shader.loadTransformationMatrix(transformationMatrix);
+    }
+
+    private Matrix4f createTransformationMatrix(Transform transform) {
+        return Maths.createTransformationMatrix(transform.getPosition(), transform.getRotation().x, transform.getRotation().y, transform.getRotation().z, transform.getScale().x);
     }
 
     @Deprecated
     public void render(GameObject gameObject, StaticShader shader) {
-        TexturedModel model = gameObject.getModel();
+        TexturedModel model = gameObject.model;
         RawModel rawModel = model.getRawModel();
         glBindVertexArray(rawModel.getVaoID());
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
         glEnableVertexAttribArray(2);
-        Matrix4f transformationMatrix = Maths.createTransformationMatrix(gameObject.getPosition(), gameObject.getRotX(), gameObject.getRotY(), gameObject.getRotZ(), gameObject.getScale());
-        shader.loadTransformationMatrix(transformationMatrix);
+        Matrix4f transformationMatrix = createTransformationMatrix(gameObject.transform);
 
         ModelTexture texture = model.getModelTexture();
         shader.loadShineVariables(texture.getShineDamper(), texture.getReflectivity());

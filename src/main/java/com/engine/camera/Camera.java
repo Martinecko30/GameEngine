@@ -1,12 +1,8 @@
 package com.engine.camera;
 
 import com.engine.game.player.Player;
-import com.engine.listeners.KeyListener;
 import com.engine.listeners.MouseListener;
-import com.engine.main.Window;
 import org.joml.Vector3f;
-
-import static org.lwjgl.glfw.GLFW.*;
 
 public class Camera {
 
@@ -27,12 +23,12 @@ public class Camera {
     public void move() {
         calculateZoom();
         calculateCameraMovement();
-        //calculatePitch();
-        //calculateAngleAroundPlayer();
+        calculatePitch();
+        calculateAngleAroundPlayer();
         float horizontalDistance = calculateHorizontalDistance();
         float verticalDistance = calculateVerticalDistance();
         calculateCameraPosition(horizontalDistance, verticalDistance);
-        this.yaw = 180 - (player.getRotY() + angleAroundPlayer);
+        this.yaw = 180 - (player.transform.getRotation().y + angleAroundPlayer);
 
         /*
         if(MouseListener.mouseButtonDown(0)) {
@@ -60,12 +56,12 @@ public class Camera {
     }
 
     private void calculateCameraPosition(float horizontalDistance, float verticalDistance) {
-        float theta = player.getRotY() + angleAroundPlayer;
+        float theta = player.transform.getRotation().y + angleAroundPlayer;
         float offsetX = (float) (horizontalDistance * Math.sin(Math.toRadians(theta)));
         float offsetZ = (float) (horizontalDistance * Math.cos(Math.toRadians(theta)));
-        position.x = player.getPosition().x - offsetX;
-        position.z = player.getPosition().z - offsetZ;
-        position.y = player.getPosition().y + verticalDistance;
+        position.x = player.transform.getPosition().x - offsetX;
+        position.z = player.transform.getPosition().z - offsetZ;
+        position.y = player.transform.getPosition().y + verticalDistance;
     }
 
     private float calculateHorizontalDistance() {

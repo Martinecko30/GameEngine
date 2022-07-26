@@ -3,6 +3,7 @@ package com.engine.main;
 import com.engine.listeners.KeyListener;
 import com.engine.listeners.MouseListener;
 import com.engine.renderengine.renderer.MasterRenderer;
+import com.engine.scenemanagment.SceneManager;
 import com.engine.scenes.LevelEditorScene;
 import com.engine.scenes.LevelScene;
 import com.engine.scenemanagment.Scene;
@@ -19,7 +20,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public class Window {
 
     private int WIDTH, HEIGHT;
-    private String TITLE;
+    private final String TITLE;
     public long glfwWindow;
 
     public float r = 1, g = 1, b = 1, a = 1;
@@ -27,6 +28,8 @@ public class Window {
     public Loader loader;// = new Loader();
 
     public MasterRenderer renderer;
+
+    public SceneManager sceneManager;
 
     private static Window window = null;
 
@@ -40,19 +43,9 @@ public class Window {
         this.TITLE = "GameEngine";
     }
 
-    public static void changeScene(int newScene) {
-        switch (newScene) {
-            case 0:
-                currentScene = new LevelEditorScene();
-                currentScene.init();
-                break;
-            case 1:
-                currentScene = new LevelScene();
-                currentScene.init();
-                break;
-            default:
-                assert  false : "Unknown scene: " + newScene + "!";
-        }
+    public static void changeScene(Scene scene) {
+        currentScene = scene;
+        currentScene.init();
     }
 
     public static Window get() {
@@ -118,8 +111,13 @@ public class Window {
 
         renderer = new MasterRenderer();
         loader = new Loader();
+        sceneManager = new SceneManager();
 
-        Window.changeScene(0);
+        // Adding scenes
+        SceneManager.addScene(new LevelEditorScene());
+        SceneManager.addScene(new LevelScene());
+
+        SceneManager.loadScene(0);
     }
 
     public void loop() {
@@ -128,13 +126,14 @@ public class Window {
         float dt = -1.0f;
 
         while (!glfwWindowShouldClose(glfwWindow)) {
+            Time.deltaTime = dt;
             glfwPollEvents();
 
             glClearColor(r, g, b, a);
             glClear(GL_COLOR_BUFFER_BIT);
 
             if(dt >= 0) {
-                currentScene.update(dt);
+                currentScene.update();
             }
 
             glfwSwapBuffers(glfwWindow);

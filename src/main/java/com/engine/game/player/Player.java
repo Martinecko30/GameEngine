@@ -1,14 +1,11 @@
 package com.engine.game.player;
 
 import com.engine.entities.GameObject;
-import com.engine.entities.Transform;
+import com.engine.game.components.Transform;
 import com.engine.listeners.KeyListener;
-import com.engine.listeners.MouseListener;
-import com.engine.main.Window;
 import com.engine.renderengine.models.TexturedModel;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.glfw.GLFW.GLFW_CURSOR_NORMAL;
 
 public class Player extends GameObject {
 
@@ -25,22 +22,22 @@ public class Player extends GameObject {
 
     private boolean isInAir = false;
 
-    public Player(String name, TexturedModel model, Transform transform, float scale) {
-        super(name, model, transform, scale);
+    public Player(String name, TexturedModel model, Transform transform) {
+        super(name, model, transform);
     }
 
     public void move(float dt) {
         checkInputs();
-        super.increaseRotation(0, currentTurnSpeed * dt, 0);
+        super.transform.increaseRotation(0, currentTurnSpeed * dt, 0);
         float distance = currentSpeed * dt;
-        float dx = (float) (distance * Math.sin(Math.toRadians(super.getRotY())));
-        float dz = (float) (distance * Math.cos(Math.toRadians(super.getRotY())));
+        float dx = (float) (distance * Math.sin(Math.toRadians(super.transform.getRotation().y)));
+        float dz = (float) (distance * Math.cos(Math.toRadians(super.transform.getRotation().y)));
         super.increasePosition(dx, upwardsSpeed * dt, dz);
         upwardsSpeed += GRAVITY * dt;
-        if(super.getPosition().y <= TERRAIN_HEIGHT) {
+        if(super.transform.getPosition().y <= TERRAIN_HEIGHT) {
             upwardsSpeed = 0;
             isInAir = false;
-            super.getPosition().y = TERRAIN_HEIGHT;
+            super.transform.getPosition().y = TERRAIN_HEIGHT;
         }
     }
 
